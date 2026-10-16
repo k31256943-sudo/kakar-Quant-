@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>Kakar-Quant Crypto Dashboard</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--panel:#121d30;--panel2:#18263c;--line:#26364d;--text:#edf4ff;--muted:#9fb0c8;--green:#45d6a3;--red:#ff7185;--blue:#73a7ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{width:min(1100px,94%);margin:auto}header{padding:18px 0;border-bottom:1px solid var(--line)}.nav{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:1.15rem;font-weight:850;display:flex;align-items:center;gap:10px}.logo{background:var(--green);color:#062017;border-radius:10px;padding:8px 10px}.tag{font-size:.78rem;color:var(--green);border:1px solid #2a6658;padding:5px 9px;border-radius:99px}
+main{padding:25px 0 42px}.intro h1{margin:0 0 5px;font-size:clamp(1.8rem,5vw,2.7rem)}.intro p{margin:0;color:var(--muted)}
+.controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:22px 0}.field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px}select,button{font:inherit;border:1px solid var(--line);border-radius:10px;padding:11px;background:var(--panel2);color:var(--text);width:100%}button{background:var(--green);color:#062017;font-weight:800;border:0;cursor:pointer}.timeframes{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 15px}.tf{width:auto;padding:8px 12px;font-size:.88rem}.tf.active{background:var(--blue);color:#071528}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:14px}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;min-width:0}.label{font-size:.8rem;color:var(--muted)}.value{font-size:1.4rem;font-weight:800;margin-top:5px;overflow-wrap:anywhere}.sub{font-size:.8rem;color:var(--muted);margin-top:4px}.positive{color:var(--green)}.negative{color:var(--red)}
+.columns{display:grid;grid-template-columns:1.4fr .8fr;gap:14px}.panel h2{font-size:1.05rem;margin:0 0 12px}.chartbox{height:250px;position:relative}canvas{width:100%;height:100%;display:block}.signal{padding:14px;border-radius:12px;background:var(--panel2);margin-bottom:12px}.signal strong{font-size:1.15rem}.signal p{margin:6px 0 0;color:var(--muted);font-size:.9rem}.notice{font-size:.84rem;color:var(--muted);line-height:1.55;border-left:3px solid var(--blue);padding:10px 12px;background:#111c2c;border-radius:0 8px 8px 0;margin-top:16px}.status{font-size:.82rem;color:var(--muted);margin-top:10px;min-height:1.3em}.foot{color:var(--muted);font-size:.8rem;margin-top:18px}
+@media(max-width:700px){.controls{grid-template-columns:1fr 1fr}.controls .field:last-child{grid-column:1/-1}.cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.chartbox{height:220px}.tag{display:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><div class="brand"><span class="logo">KQ</span><span>Kakar-Quant</span></div><span class="tag">CRYPTO RESEARCH</span></div></header>
+<main class="wrap">
+<div class="intro"><h1>Crypto market dashboard</h1><p>Live public market candles · multi-timeframe analysis · educational signals</p></div>
+<div class="controls">
+  <div class="field"><label for="pair">Crypto pair</label><select id="pair"><option>BTCUSDT</option><option>ETHUSDT</option><option>BNBUSDT</option><option>SOLUSDT</option><option>XRPUSDT</option><option>ADAUSDT</option><option>DOGEUSDT</option><option>LINKUSDT</option></select></div>
+  <div class="field"><label for="interval">Timeframe</label><select id="interval"><option value="1m">1 minute</option><option value="3m">3 minutes</option><option value="5m">5 minutes</option><option value="15m">15 minutes</option><option value="30m">30 minutes</option><option value="1h" selected>1 hour</option><option value="2h">2 hours</option><option value="4h">4 hours</option><option value="6h">6 hours</option><option value="8h">8 hours</option><option value="12h">12 hours</option><option value="1d">1 day</option><option value="3d">3 days</option><option value="1w">1 week</option><option value="1M">1 month</option></select></div>
+  <div class="field"><label>&nbsp;</label><button id="refresh">Refresh market data</button></div>
+</div>
+<div class="cards">
+  <div class="card"><div class="label">Latest candle close (USDT)</div><div class="value" id="price">—</div><div class="sub" id="change">Waiting for market data</div></div>
+  <div class="card"><div class="label">RSI (14)</div><div class="value" id="rsi">—</div><div class="sub">Below 30: oversold · Above 70: overbought</div></div>
+  <div class="card"><div class="label">SMA trend (10 / 30)</div><div class="value" id="trend">—</div><div class="sub" id="sma">Waiting for market data</div></div>
+</div>
+<div class="columns">
+  <section class="panel"><h2 id="chartTitle">Price chart</h2><div class="chartbox"><canvas id="chart"></canvas></div><div class="status" id="status" role="status">Tap Refresh market data to load public market data.</div></section>
+  <section class="panel"><h2>Signal overview</h2><div class="signal"><div class="label">Rule-based research signal</div><strong id="signal">—</strong><p id="signalText">Load data to calculate the signal.</p></div><div class="signal"><div class="label">Timeframe used</div><strong id="usedTf">1 hour</strong><p>Signals are calculated only from the selected timeframe.</p></div><div class="notice">A LONG label means the simple trend rule is bullish; SHORT means bearish. These are not guaranteed entries and do not place orders. Spot-market data alone does not mean you can open a short position.</div></section>
+</div>
+<div class="foot">Data source: Binance public market-data API. This demo does not connect to an account, use API keys, or execute trades. Availability may vary by network or region.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let closes=[];
+function fmt(n){return Number(n).toLocaleString(undefined,{maximumFractionDigits:8})}
+function sma(a,n){return a.length<n?null:a.slice(-n).reduce((x,y)=>x+y,0)/n}
+function rsi(a,n=14){if(a.length<n+1)return null;let g=0,l=0;for(let i=a.length-n;i<a.length;i++){let d=a[i]-a[i-1];if(d>0)g+=d;else l-=d}if(l===0)return 100;return 100-100/(1+(g/n)/(l/n))}
+function drawChart(values){const c=$('chart'),ctx=c.getContext('2d'),rect=c.getBoundingClientRect(),dpr=window.devicePixelRatio||1;c.width=rect.width*dpr;c.height=rect.height*dpr;ctx.scale(dpr,dpr);let w=rect.width,h=rect.height;ctx.clearRect(0,0,w,h);if(!values.length)return;let min=Math.min(...values),max=Math.max(...values);if(max===min){max+=1;min-=1}let pad=12;ctx.strokeStyle='#26364d';ctx.lineWidth=1;for(let i=0;i<4;i++){let y=pad+(h-2*pad)*i/3;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}ctx.beginPath();values.forEach((v,i)=>{let x=pad+(w-2*pad)*i/(values.length-1),y=h-pad-(v-min)/(max-min)*(h-2*pad);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.strokeStyle='#55d6be';ctx.lineWidth=2;ctx.stroke();ctx.fillStyle='#9fb0c8';ctx.font='11px system-ui';ctx.fillText(fmt(max),5,12);ctx.fillText(fmt(min),5,h-3)}
+async function load(){let pair=$('pair').value,tf=$('interval').value;$('status').textContent='Loading public market data…';$('refresh').disabled=true;try{const url=`https://api.binance.com/api/v3/klines?symbol=${encodeURIComponent(pair)}&interval=${encodeURIComponent(tf)}&limit=100`;const res=await fetch(url);if(!res.ok)throw new Error('Market data request failed (HTTP '+res.status+').');const rows=await res.json();if(!Array.isArray(rows)||!rows.length)throw new Error('No candles returned for this pair/timeframe.');closes=rows.map(r=>Number(r[4]));const price=closes.at(-1),prev=closes.at(-2),delta=(price-prev)/prev*100,s10=sma(closes,10),s30=sma(closes,30),rv=rsi(closes);$('price').textContent=fmt(price);$('change').textContent=`Last candle change: ${delta>=0?'+':''}${delta.toFixed(2)}%`;$('change').className='sub '+(delta>=0?'positive':'negative');$('rsi').textContent=rv===null?'—':rv.toFixed(2);$('trend').textContent=s10>s30?'Bullish':s10<s30?'Bearish':'Neutral';$('trend').className='value '+(s10>s30?'positive':s10<s30?'negative':'');$('sma').textContent=`SMA 10: ${fmt(s10)} · SMA 30: ${fmt(s30)}`;let label=s10>s30?'LONG BIAS':s10<s30?'SHORT BIAS':'NEUTRAL';$('signal').textContent=label;$('signal').className=s10>s30?'positive':s10<s30?'negative':'';$('signalText').textContent=`Based on the 10/30 SMA relationship for ${pair}. RSI: ${rv===null?'not available':rv.toFixed(1)}.`;$('usedTf').textContent=$('interval').selectedOptions[0].text;$('chartTitle').textContent=`${pair} · ${$('interval').selectedOptions[0].text} closes`;$('status').textContent=`Loaded ${rows.length} candles. Latest candle time: ${new Date(rows.at(-1)[0]).toLocaleString()}.`;drawChart(closes)}catch(e){$('status').textContent=e.message+' Check your internet connection and try again.'}finally{$('refresh').disabled=false}}
+$('refresh').addEventListener('click',load);$('pair').addEventListener('change',load);$('interval').addEventListener('change',load);window.addEventListener('resize',()=>drawChart(closes));load();
+</script>
+</body>
+</html>
